@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: activeyouth-api
+  namespace: active-youth
+spec:
+  type: NodePort
+  selector:
+    app: activeyouth-api
+  ports:
+    - port: 80
+      targetPort: 3000
+      nodePort: 30080

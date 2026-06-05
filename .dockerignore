@@ -1,0 +1,8 @@
+dist
+coverage
+tests
+.env
+.git
+.gitignore
+README.md
+*.log

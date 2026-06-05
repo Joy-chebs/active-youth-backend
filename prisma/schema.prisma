@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  employee
+  employer
+}
+
+enum SocialProvider {
+  none
+  google
+  facebook
+  instagram
+}
+
+enum PriceType {
+  fixed
+  hourly
+  daily
+}
+
+enum NotificationType {
+  new_match
+  new_message
+  nearby_search
+  verification_success
+}
+
+model User {
+  id               String         @id @default(uuid())
+  name             String
+  email            String         @unique
+  phone            String
+  password         String?
+  bio              String         @default("")
+  profileImageUrl  String?
+  userType         UserType
+  location         String         @default("")
+  latitude         Float?
+  longitude        Float?
+  skills           String[]       @default([])
+  rating           Float          @default(0)
+  reviewCount      Int            @default(0)
+  isVerified       Boolean        @default(false)
+  companyName      String?
+  companyLogo      String?
+  socialProvider   SocialProvider @default(none)
+  createdAt        DateTime       @default(now())
+
+  services         ServiceOffer[]
+  reviewsGiven     Review[]       @relation("ReviewsGiven")
+  reviewsReceived  Review[]       @relation("ReviewsReceived")
+  conversationsAs1 Conversation[] @relation("ConvUser1")
+  conversationsAs2 Conversation[] @relation("ConvUser2")
+  messagesSent     Message[]
+  notifications    Notification[]
+  searchHistory    SearchHistory[]
+  serviceViews     ServiceView[]
+}
+
+model ServiceOffer {
+  id          String    @id @default(uuid())
+  userId      String
+  title       String
+  description String
+  category    String
+  price       Float
+  priceType   PriceType
+  location    String
+  latitude    Float?
+  longitude   Float?
+  images      String[]  @default([])
+  isAvailable Boolean   @default(true)
+  viewCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  views       ServiceView[]
+}
+
+model ServiceView {
+  id        String   @id @default(uuid())
+  serviceId String
+  userId    String
+  viewedAt  DateTime @default(now())
+
+  service   ServiceOffer @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, userId, viewedAt])
+}
+
+model Conversation {
+  id              String    @id @default(uuid())
+  user1Id         String
+  user2Id         String
+  lastMessage     String    @default("")
+  lastMessageTime DateTime  @default(now())
+  unreadCount     Int       @default(0)
+  createdAt       DateTime  @default(now())
+
+  user1    User      @relation("ConvUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2    User      @relation("ConvUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@unique([user1Id, user2Id])
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String
+  senderId       String
+  receiverId     String
+  content        String
+  imageUrl       String?
+  isRead         Boolean  @default(false)
+  timestamp      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id           String   @id @default(uuid())
+  reviewerId   String
+  targetUserId String
+  rating       Int
+  comment      String
+  createdAt    DateTime @default(now())
+
+  reviewer   User @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  targetUser User @relation("ReviewsReceived", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewerId, targetUserId])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SearchHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  term      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
