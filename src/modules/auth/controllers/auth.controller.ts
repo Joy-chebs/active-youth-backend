@@ -34,7 +34,7 @@ export async function logout(_req: Request, res: Response) {
 export async function me(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.userId } });
-    if (!user) { res.status(404).json({ error: 'User not found' }); return; }
+    if (!user) { res.status(404).json({ error: 'User not found nu' }); return; }
     res.json(authService.sanitize(user as unknown as Record<string, unknown>));
   } catch (e) { next(e); }
 }
