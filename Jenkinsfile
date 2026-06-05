@@ -45,8 +45,9 @@ pipeline {
     stage('Deploy to k8s') {
   steps {
     sh """
-      kubectl set image deployment/activeyouth-api api=${IMAGE}:${TAG} -n activeyouth
-      kubectl rollout restart deployment/activeyouth-api -n activeyouth
+      kubectl apply -f k8s/
+      kubectl set image deployment/activeyouth-api api=${IMAGE}:${TAG} -n active-youth
+      kubectl rollout status deployment/activeyouth-api -n active-youth
     """
   }
 }
