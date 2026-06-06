@@ -7,10 +7,9 @@ COPY package*.json ./
 COPY tsconfig.json ./
 COPY prisma.config.ts ./
 COPY prisma ./prisma
+COPY generated ./generated
 
 RUN npm ci --prefer-offline || npm ci
-
-RUN npx prisma generate
 
 COPY src ./src
 
@@ -26,10 +25,9 @@ ENV NODE_ENV=production
 COPY package*.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
+COPY generated ./generated
 
 RUN npm ci --omit=dev --prefer-offline || npm ci --omit=dev
-
-RUN npx prisma generate
 
 COPY --from=builder /app/dist ./dist
 
