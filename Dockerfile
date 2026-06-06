@@ -29,6 +29,9 @@ COPY generated ./generated
 
 RUN npm ci --omit=dev --prefer-offline || npm ci --omit=dev
 
+# Generate Prisma client runtime into node_modules (does NOT need DATABASE_URL)
+RUN npx prisma generate --schema=prisma/schema.prisma
+
 COPY --from=builder /app/dist ./dist
 
 EXPOSE 3000
