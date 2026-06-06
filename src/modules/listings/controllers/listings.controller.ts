@@ -96,11 +96,13 @@ export async function uploadImages(req: AuthRequest, res: Response, next: NextFu
     const service = await prisma.serviceOffer.findUnique({ where: { id } });
     if (!service) { res.status(404).json({ error: 'Not found' }); return; }
     if (service.userId !== req.userId) { res.status(403).json({ error: 'Forbidden' }); return; }
-    const files = req.files as Express.Multer.File[];
-    if (!files?.length) { res.status(400).json({ error: 'No files provided' }); return; }
+    const files = req.files as Express.Multer.File[] | undefined;
+    const singleFile = req.file as Express.Multer.File | undefined;
+    const allFiles = files?.length ? files : singleFile ? [singleFile] : [];
+    if (!allFiles.length) { res.status(400).json({ error: 'No files provided' }); return; }
     const remaining = 5 - service.images.length;
     if (remaining <= 0) { res.status(400).json({ error: 'Max 5 images reached' }); return; }
-    const urls = await Promise.all(files.slice(0, remaining).map((f: Express.Multer.File) => uploadToCloudinary(f.buffer, 'services')));
+    const urls = await Promise.all(allFiles.slice(0, remaining).map((f: Express.Multer.File) => uploadToCloudinary(f.buffer, 'services')));
     const updated = await prisma.serviceOffer.update({ where: { id }, data: { images: [...service.images, ...urls] } });
     res.json({ images: updated.images });
   } catch (e) { next(e); }

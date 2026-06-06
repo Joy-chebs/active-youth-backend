@@ -16,10 +16,30 @@ spec:
       containers:
         - name: api
           image: joyjoy05/activeyouth-api:latest
-          imagePullPolicy: IfNotPresent 
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
+          # Readiness probe — k8s won't route traffic until /health returns 200
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          # Liveness probe — k8s restarts pod if it becomes unresponsive
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 3
           env:
+            - name: PORT
+              value: "3000"
+            - name: NODE_ENV
+              value: "production"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -30,18 +50,32 @@ spec:
                 secretKeyRef:
                   name: activeyouth-secrets
                   key: JWT_SECRET
-            - name: RESEND_API_KEY
+            - name: REDIS_URL
               valueFrom:
                 secretKeyRef:
                   name: activeyouth-secrets
-                  key: RESEND_API_KEY
-            - name: GEMINI_API_KEY
+                  key: REDIS_URL
+            - name: KAFKA_BROKERS
               valueFrom:
                 secretKeyRef:
                   name: activeyouth-secrets
-                  key: GEMINI_API_KEY
-            - name: JWT_REFRESH_SECRET
+                  key: KAFKA_BROKERS
+            - name: KAFKA_CLIENT_ID
+              value: "activeyouths-backend"
+            - name: KAFKA_GROUP_ID
+              value: "activeyouths-consumers"
+            - name: CLOUDINARY_CLOUD_NAME
               valueFrom:
                 secretKeyRef:
                   name: activeyouth-secrets
-                  key: JWT_REFRESH_SECRET
+                  key: CLOUDINARY_CLOUD_NAME
+            - name: CLOUDINARY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: activeyouth-secrets
+                  key: CLOUDINARY_API_KEY
+            - name: CLOUDINARY_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: activeyouth-secrets
+                  key: CLOUDINARY_API_SECRET

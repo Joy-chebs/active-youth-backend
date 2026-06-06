@@ -83,6 +83,14 @@ export async function getUserStats(req: AuthRequest, res: Response, next: NextFu
       prisma.serviceOffer.aggregate({ where: { userId }, _sum: { viewCount: true } }),
     ]);
     if (!user) { res.status(404).json({ error: 'User not found' }); return; }
-    res.json({ offersCount, reviewCount: user.reviewCount, totalViews: totalViews._sum.viewCount ?? 0, rating: user.rating });
+    res.json({
+      totalServices: offersCount,
+      reviewCount: user.reviewCount,
+      totalViews: totalViews._sum.viewCount ?? 0,
+      averageRating: user.rating,
+      totalReviews: user.reviewCount,
+      rating: user.rating,
+      offersCount,
+    });
   } catch (e) { next(e); }
 }

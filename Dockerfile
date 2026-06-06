@@ -1,5 +1,5 @@
 # ── Stage 1: Build ────────────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -7,24 +7,31 @@ COPY package*.json ./
 COPY tsconfig.json ./
 COPY prisma.config.ts ./
 COPY prisma ./prisma
-COPY generated ./generated
-COPY node_modules ./node_modules
+
+RUN npm ci --prefer-offline || npm ci
+
+RUN npx prisma generate
+
 COPY src ./src
 
 RUN npm run build
 
 # ── Stage 2: Production ───────────────────────────────────────────────────────
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
 COPY package*.json ./
-COPY node_modules ./node_modules
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+
+RUN npm ci --omit=dev --prefer-offline || npm ci --omit=dev
+
+RUN npx prisma generate
+
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/generated ./generated
-COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 

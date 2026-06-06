@@ -6,6 +6,13 @@ export async function recommendations(req: AuthRequest, res: Response, next: Nex
   try {
     const { searchHistory = [], limit = 5 } = req.body;
     const results = await getRecommendations(searchHistory, limit);
-    res.json(results);
+    res.json({
+      recommendations: results.map((r) => ({
+        serviceId: r.offer.id,
+        userId: r.user.id,
+        score: r.score,
+        matchedSkills: r.matchedSkills,
+      })),
+    });
   } catch (e) { next(e); }
 }

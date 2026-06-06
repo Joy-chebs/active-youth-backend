@@ -2,11 +2,11 @@
   "name": "activeyouths-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "test": "jest --coverage",
     "test:unit": "jest tests/unit --coverage",
     "test:integration": "jest tests/integration"
@@ -39,7 +39,7 @@
     "@types/supertest": "^7.2.0",
     "@types/uuid": "^10.0.0",
     "jest": "^30.4.2",
-    "prisma": "^6.19.3",
+    "prisma": "^7.8.0",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",

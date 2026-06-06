@@ -12,6 +12,7 @@ router.post('/', authenticate, ctrl.createService);
 router.put('/:id', authenticate, ctrl.updateService);
 router.delete('/:id', authenticate, ctrl.deleteService);
 router.post('/:id/images', authenticate, upload.array('files', 5), ctrl.uploadImages);
+router.post('/:id/image', authenticate, upload.single('file'), ctrl.uploadImages);
 router.delete('/:id/images/:imageIndex', authenticate, ctrl.deleteImage);
 router.post('/:id/view', authenticate, ctrl.incrementView);
 
