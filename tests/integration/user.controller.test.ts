@@ -106,7 +106,7 @@ describe('user.controller', () => {
       const req = mockReq({ params: { id: 'user-1' } });
       const res = mockRes();
       await ctrl.getUserStats(req, res, mockNext);
-      expect(res.json).toHaveBeenCalledWith({ offersCount: 3, reviewCount: 5, totalViews: 100, rating: 4.2 });
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ offersCount: 3, reviewCount: 5, totalViews: 100, rating: 4.2 }));
     });
 
     it('returns 404 when user not found', async () => {

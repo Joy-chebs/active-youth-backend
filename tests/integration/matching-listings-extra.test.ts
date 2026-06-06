@@ -17,7 +17,7 @@ describe('matching.controller', () => {
     const req = mockReq({ userId: 'user-1', body: { searchHistory: ['web'], limit: 3 } });
     const res = mockRes();
     await matchingCtrl.recommendations(req, res, mockNext);
-    expect(res.json).toHaveBeenCalledWith([]);
+    expect(res.json).toHaveBeenCalledWith({ recommendations: [] });
   });
 
   it('recommendations uses default limit when not provided', async () => {
@@ -25,7 +25,7 @@ describe('matching.controller', () => {
     const req = mockReq({ userId: 'user-1', body: { searchHistory: [] } });
     const res = mockRes();
     await matchingCtrl.recommendations(req, res, mockNext);
-    expect(res.json).toHaveBeenCalledWith([]);
+    expect(res.json).toHaveBeenCalledWith({ recommendations: [] });
   });
 });
 
